@@ -65,12 +65,14 @@ class OwncastParserSensor(SensorEntity):
 
     def __init__(
             self: OwncastParserSensor,
+            hass: HomeAssistant,
             url: str,
             name: str,
             timeout: int,
             verify_ssl: bool,
             scan_interval: timedelta
     ) -> None:
+        self._hass = hass
         self._url = url
         self._attr_name = name
         self._attr_icon = "mdi:something"
@@ -114,4 +116,3 @@ class OwncastParserSensor(SensorEntity):
             self._attr_native_value = "offline"
             self._attr_available = False
         _LOGGER.debug(f"Owncast state updated for {self._url}.")
-        
