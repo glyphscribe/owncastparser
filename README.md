@@ -1,6 +1,6 @@
 # Owncast Parser
 
-*Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam.*
+*this does stuff. update later.*
 
 ## Installation (via HACS as a custom repository)
 
@@ -16,7 +16,4 @@ sensor:
   - platform: owncastparser
     name: "Your Owncast Site"
     url: "https://your-owncast-site.net/"
-    timeout: 8
-    verify_ssl: true
-    scan_interval: 60  # seconds
 ```
