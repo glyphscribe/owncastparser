@@ -99,9 +99,9 @@ class OwncastParserSensor(SensorEntity):
 
                 if isinstance(data, dict):
                     self._attr_available = True
-                    attrs["live"] = data.get("online") or None
                     attrs["viewers"] = data.get("viewerCount") or "Unknown"
-                    if attrs["live"] == True:
+
+                    if data.get("online", False) == True:
                         self._attr_native_value = "online"
                         self._attr_icon = "mdi:video-outline"
                     else:
