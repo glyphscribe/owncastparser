@@ -76,7 +76,7 @@ class OwncastParserSensor(SensorEntity):
         #self._hass = hass
         self._url = url
         self._attr_name = name
-        self._attr_icon = "mdi:something"
+        self._attr_icon = "mdi:video-wireless"
         self._timeout = timeout
         self._verify_ssl = verify_ssl
         self._scan_interval = scan_interval
@@ -107,7 +107,10 @@ class OwncastParserSensor(SensorEntity):
 
                 if isinstance(data, dict):
                     self._attr_available = True
-                    attrs["viewers"] = data.get("online") or 0
+                    attrs["live"] = data.get("online") or None
+                    attrs["viewers"] = data.get("viewerCount") or 0
+                    if attrs["live"] == True:
+                        self._attr_native_value = "online"
         except (aiohttp.ClientError, asyncio.TimeoutError) as error:
             _LOGGER.warning(f"Owncast status check failed for {self._url}: {error}")
             self._attr_native_value = "offline"
