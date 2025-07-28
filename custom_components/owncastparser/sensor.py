@@ -10,7 +10,7 @@ import async_timeout
 import voluptuous as vol
 
 from homeassistant.components.sensor import SensorEntity, PLATFORM_SCHEMA
-from homeassistant.const import CONF_NAME, CONF_SCAN_INTERVAL
+from homeassistant.const import CONF_NAME, CONF_URL, CONF_TIMEOUT, CONF_VERIFY_SSL, CONF_SCAN_INTERVAL
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
@@ -18,11 +18,6 @@ if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
     from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
-
-# YAML Sensor Variables
-CONF_OWNCAST_URL = "owncast_url"
-CONF_TIMEOUT = "timeout"
-CONF_VERIFY_SSL = "verify"
 
 # Default Values
 DEFAULT_TIMEOUT = 10 # Seconds
@@ -32,9 +27,9 @@ DEFAULT_SCAN_INTERVAL = timedelta(minutes=1)
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_NAME): cv.string,
-        vol.Required(CONF_OWNCAST_URL): cv.string, # can this be replaced with a builtin?
-        vol.Optional(CONF_TIMEOUT, default=DEFAULT_TIMEOUT): cv.positive_int, # can this be replaced with a builtin?
-        vol.Optional(CONF_VERIFY_SSL, default=DEFAULT_VERIFY_SSL): cv.boolean, # can this be replaced with a builtin?
+        vol.Required(CONF_URL): cv.url,
+        vol.Optional(CONF_TIMEOUT, default=DEFAULT_TIMEOUT): cv.positive_int,
+        vol.Optional(CONF_VERIFY_SSL, default=DEFAULT_VERIFY_SSL): cv.boolean,
         vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): cv.time_period
     },
 )
@@ -50,8 +45,7 @@ async def async_setup_platform(
     async_add_devices(
         [
             OwncastParserSensor(
-                #hass=hass,
-                url=config[CONF_OWNCAST_URL],
+                url=config[CONF_URL],
                 name=config[CONF_NAME],
                 timeout=config[CONF_TIMEOUT],
                 verify_ssl=config[CONF_VERIFY_SSL],
@@ -66,21 +60,19 @@ class OwncastParserSensor(SensorEntity):
 
     def __init__(
             self: OwncastParserSensor,
-            #hass: HomeAssistant,
             url: str,
             name: str,
             timeout: int,
             verify_ssl: bool,
             scan_interval: timedelta
     ) -> None:
-        #self._hass = hass
-        self._url = url
+        self._url = url.rstrip('/') + '/api/status'
         self._attr_name = name
-        self._attr_icon = "mdi:video-wireless"
+        self._attr_icon = "mdi:video-off-outline"
         self._timeout = timeout
         self._verify_ssl = verify_ssl
         self._scan_interval = scan_interval
-        self._attr_extra_state_attributes = {"viewers": 0}
+        self._attr_extra_state_attributes = {}
         self._attr_attribution = "Data retrieved using Owncast Parser"
         _LOGGER.debug(f"Owncast Tracker for {self.name} initialized.")
 
@@ -103,14 +95,19 @@ class OwncastParserSensor(SensorEntity):
                         _LOGGER.debug(f"Owncast status fetch for {self._url} failed: unusual API response: {data}")
                         self._attr_native_value = "offline"
                 elapsed_time = int((self.hass.loop.time() - start_time) * 1000)
-                # set reponse time attr
+                attrs["response_time"] = elapsed_time
 
                 if isinstance(data, dict):
                     self._attr_available = True
                     attrs["live"] = data.get("online") or None
-                    attrs["viewers"] = data.get("viewerCount") or 0
+                    attrs["viewers"] = data.get("viewerCount") or "Unknown"
                     if attrs["live"] == True:
                         self._attr_native_value = "online"
+                        self._attr_icon = "mdi:video-outline"
+                    else:
+                        self._attr_native_value = "offline"
+                        self._attr_icon = "mdi:video-off-outline"
+
         except (aiohttp.ClientError, asyncio.TimeoutError) as error:
             _LOGGER.warning(f"Owncast status check failed for {self._url}: {error}")
             self._attr_native_value = "offline"
