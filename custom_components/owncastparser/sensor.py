@@ -26,8 +26,8 @@ COMPOENENT_REPO = "https://github.com/glyphscribe/owncastparser" # copy
 CONF_SERVER_URL = "url"
 
 DEFAULT_SCAN_INTERVAL = timedelta(minutes=1)
-DEFAULT_TIMEOUT = Final[int] = 10
-DEFAULT_VERIFY_SSL = Final[bool] = True
+DEFAULT_TIMEOUT = 10
+DEFAULT_VERIFY_SSL = True
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
