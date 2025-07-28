@@ -50,6 +50,7 @@ async def async_setup_platform(
     async_add_devices(
         [
             OwncastParserSensor(
+                hass=hass,
                 url=config[CONF_OWNCAST_URL],
                 name=config[CONF_NAME],
                 timeout=config[CONF_TIMEOUT],
