@@ -114,3 +114,4 @@ class OwncastParserSensor(SensorEntity):
             self._attr_native_value = "offline"
             self._attr_available = False
         _LOGGER.debug(f"Owncast state updated for {self._url}.")
+        
