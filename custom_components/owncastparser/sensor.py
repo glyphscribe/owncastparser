@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 from datetime import timedelta
 import logging
-from typing import Any, Final, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 import aiohttp
 import async_timeout
