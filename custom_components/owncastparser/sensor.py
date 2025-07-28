@@ -50,7 +50,7 @@ async def async_setup_platform(
     async_add_devices(
         [
             OwncastParserSensor(
-                hass=hass,
+                #hass=hass,
                 url=config[CONF_OWNCAST_URL],
                 name=config[CONF_NAME],
                 timeout=config[CONF_TIMEOUT],
@@ -66,14 +66,14 @@ class OwncastParserSensor(SensorEntity):
 
     def __init__(
             self: OwncastParserSensor,
-            hass: HomeAssistant,
+            #hass: HomeAssistant,
             url: str,
             name: str,
             timeout: int,
             verify_ssl: bool,
             scan_interval: timedelta
     ) -> None:
-        self._hass = hass
+        #self._hass = hass
         self._url = url
         self._attr_name = name
         self._attr_icon = "mdi:something"
@@ -86,13 +86,13 @@ class OwncastParserSensor(SensorEntity):
 
     async def async_update(self: OwncastParserSensor) -> None:
         _LOGGER.debug(f"Owncast Tracker {self.name} pulling current data from {self._url}")
-        session = async_get_clientsession(self._hass, verify_ssl=self._verify_ssl)
+        session = async_get_clientsession(self.hass, verify_ssl=self._verify_ssl)
         
         attrs = self._attr_extra_state_attributes
         try:
             async with async_timeout.timeout(self._timeout):
                 timeout = aiohttp.ClientTimeout(total=self._timeout)
-                start_time = self._hass.loop.time()
+                start_time = self.hass.loop.time()
                 async with session.get(self._url, timeout=timeout) as response:
                     data: Any | None = None
                     content_type = response.headers.get("Content-Type", "")
@@ -102,7 +102,7 @@ class OwncastParserSensor(SensorEntity):
                         data = await response.read()
                         _LOGGER.debug(f"Owncast status fetch for {self._url} failed: unusual API response: {data}")
                         self._attr_native_value = "offline"
-                elapsed_time = int((self._hass.loop.time() - start_time) * 1000)
+                elapsed_time = int((self.hass.loop.time() - start_time) * 1000)
                 # set reponse time attr
 
                 if isinstance(data, dict):
