@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 # Default Values
-DEFAULT_TIMEOUT = 10 # Seconds
+DEFAULT_TIMEOUT = 10  # Seconds
 DEFAULT_VERIFY_SSL = True
 DEFAULT_SCAN_INTERVAL = timedelta(minutes=1)
 
@@ -35,6 +35,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 )
 
 _LOGGER: logging.Logger = logging.getLogger(__name__)
+
 
 async def async_setup_platform(
         hass: HomeAssistant,
@@ -54,6 +55,7 @@ async def async_setup_platform(
         ],
         update_before_add=True,
     )
+
 
 class OwncastParserSensor(SensorEntity):
     _attr_force_update = True
@@ -77,14 +79,17 @@ class OwncastParserSensor(SensorEntity):
         _LOGGER.debug(f"Owncast Parser for {self._url} initialized.")
 
     async def async_update(self: OwncastParserSensor) -> None:
-        _LOGGER.debug(f"Owncast Parser attempting to read state data from: {self._url}")
-        session = async_get_clientsession(self.hass, verify_ssl=self._verify_ssl)
-        
+        _LOGGER.debug(
+            f"Owncast Parser attempting to read state data from: {self._url}")
+        session = async_get_clientsession(
+            self.hass, verify_ssl=self._verify_ssl)
+
         attrs = self._attr_extra_state_attributes
         try:
             async with async_timeout.timeout(self._timeout):
                 timeout = aiohttp.ClientTimeout(total=self._timeout)
                 start_time = self.hass.loop.time()
+
                 async with session.get(self._url, timeout=timeout) as response:
                     data: Any | None = None
                     content_type = response.headers.get("Content-Type", "")
@@ -92,8 +97,10 @@ class OwncastParserSensor(SensorEntity):
                         data = await response.json()
                     else:
                         data = await response.read()
-                        _LOGGER.debug(f"Owncast Parser fetch for {self._url} failed with unusual API response: {data}")
+                        _LOGGER.debug(
+                            f"Owncast Parser fetch for {self._url} failed with unusual API response: {data}")
                         self._attr_native_value = "offline"
+
                 elapsed_time = int((self.hass.loop.time() - start_time) * 1000)
                 attrs["response_time"] = elapsed_time
 
@@ -111,13 +118,15 @@ class OwncastParserSensor(SensorEntity):
                         self._attr_icon = "mdi:video-off-outline"
 
         except (aiohttp.ClientError, asyncio.TimeoutError) as error:
-            _LOGGER.warning(f"Owncast Parser fetch failed for {self._url}: {error}")
+            _LOGGER.warning(
+                f"Owncast Parser fetch failed for {self._url}: {error}")
             self._attr_native_value = "offline"
             self._attr_available = False
 
         except Exception as error:
-            _LOGGER.warning(f"Owncast Parser failed to fetch {self._url} with unusual error: {error}")
+            _LOGGER.warning(
+                f"Owncast Parser failed to fetch {self._url} with unusual error: {error}")
             self._attr_native_value = "offline"
             self._attr_available = False
-            
+
         _LOGGER.debug(f"Owncast state updated for {self._url}.")
