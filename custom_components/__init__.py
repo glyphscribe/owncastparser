@@ -1,1 +1,1 @@
-# Intentionally minimal for a YAML-only sensor platform.
+"""Init file for custom_components."""

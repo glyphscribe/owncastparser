@@ -30,3 +30,6 @@ sensor:
     scan_interval: 
       minutes: 5 # how often to poll status
 ```
+
+## Thanks
+A not-insignificant amount of the hass custom_component interface logic was cribbed from [Feedparser](https://github.com/custom-components/feedparser). Please show the project some love if you can.
