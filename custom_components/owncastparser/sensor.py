@@ -1,17 +1,17 @@
 from __future__ import annotations
 
-import asyncio
-from datetime import timedelta
-import logging
 from typing import Any, TYPE_CHECKING
+from datetime import timedelta
+import asyncio
+import logging
 
 import aiohttp
 import async_timeout
 import voluptuous as vol
 
+import homeassistant.helpers.config_validation as cv
 from homeassistant.components.sensor import SensorEntity, PLATFORM_SCHEMA
 from homeassistant.const import CONF_NAME, CONF_URL, CONF_TIMEOUT, CONF_VERIFY_SSL, CONF_SCAN_INTERVAL
-import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 if TYPE_CHECKING:
@@ -74,10 +74,10 @@ class OwncastParserSensor(SensorEntity):
         self._scan_interval = scan_interval
         self._attr_extra_state_attributes = {}
         self._attr_attribution = "Data retrieved using Owncast Parser"
-        _LOGGER.debug(f"Owncast Tracker for {self.name} initialized.")
+        _LOGGER.debug(f"Owncast Parser for {self._url} initialized.")
 
     async def async_update(self: OwncastParserSensor) -> None:
-        _LOGGER.debug(f"Owncast Tracker {self.name} pulling current data from {self._url}")
+        _LOGGER.debug(f"Owncast Parser attempting to read state data from: {self._url}")
         session = async_get_clientsession(self.hass, verify_ssl=self._verify_ssl)
         
         attrs = self._attr_extra_state_attributes
@@ -92,28 +92,32 @@ class OwncastParserSensor(SensorEntity):
                         data = await response.json()
                     else:
                         data = await response.read()
-                        _LOGGER.debug(f"Owncast status fetch for {self._url} failed: unusual API response: {data}")
+                        _LOGGER.debug(f"Owncast Parser fetch for {self._url} failed with unusual API response: {data}")
                         self._attr_native_value = "offline"
                 elapsed_time = int((self.hass.loop.time() - start_time) * 1000)
                 attrs["response_time"] = elapsed_time
 
                 if isinstance(data, dict):
                     self._attr_available = True
-                    attrs["viewers"] = data.get("viewerCount") or "Unknown"
+                    attrs["viewers"] = data.get("viewerCount", 0)
 
                     if data.get("online", False) == True:
+                        attrs["stream_title"] = data.get("streamTitle", "")
                         self._attr_native_value = "online"
                         self._attr_icon = "mdi:video-outline"
                     else:
+                        attrs["stream_title"] = ""
                         self._attr_native_value = "offline"
                         self._attr_icon = "mdi:video-off-outline"
 
         except (aiohttp.ClientError, asyncio.TimeoutError) as error:
-            _LOGGER.warning(f"Owncast status check failed for {self._url}: {error}")
+            _LOGGER.warning(f"Owncast Parser fetch failed for {self._url}: {error}")
             self._attr_native_value = "offline"
             self._attr_available = False
+
         except Exception as error:
-            _LOGGER.warning(f"Unexpected error checking Owncast Server {self._url}: {error}")
+            _LOGGER.warning(f"Owncast Parser failed to fetch {self._url} with unusual error: {error}")
             self._attr_native_value = "offline"
             self._attr_available = False
+            
         _LOGGER.debug(f"Owncast state updated for {self._url}.")
