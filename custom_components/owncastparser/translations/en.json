@@ -18,7 +18,8 @@
             }
         },
         "error": {
-            "cannot_connect": "Unable to connect to Owncast server."
+            "cannot_connect": "Unable to connect to Owncast server.",
+            "invalid_url": "URL must use http or https."
         },
         "abort": {
             "already_configured": "This Owncast server is already configured."
