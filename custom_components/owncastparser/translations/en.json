@@ -1,0 +1,27 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Add Owncast Server",
+                "data": {
+                    "name": "Name",
+                    "url": "URL",
+                    "timeout": "Timeout (seconds)",
+                    "verify_ssl": "Verify SSL certificate"
+                },
+                "data_description": {
+                    "name": "Display name for this sensor in Home Assistant.",
+                    "url": "Base URL of your Owncast server, e.g. https://live.example.com",
+                    "timeout": "Optional. HTTP request timeout in seconds (default: 10).",
+                    "verify_ssl": "Optional. Disable if your server uses a self-signed certificate."
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "Unable to connect to Owncast server."
+        },
+        "abort": {
+            "already_configured": "This Owncast server is already configured."
+        }
+    }
+}

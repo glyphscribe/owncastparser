@@ -1,5 +1,7 @@
 {
   "name": "Owncast Parser",
-  "domains": ["sensor"],
+  "domains": [
+    "sensor"
+  ],
   "render_readme": true
 }

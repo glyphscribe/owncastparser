@@ -1,11 +1,13 @@
 {
-    "domain": "owncastparser",
-    "name": "Owncast Parser",
-    "version": "0.1.0",
-    "documentation": "https://github.com/glyphscribe/owncastparser#readme",
-    "issue_tracker": "https://github.com/glyphscribe/owncastparser/issues",
-    "codeowners": ["@glyphscribe"],
-    "iot_class": "cloud_polling",
-    "requirements": []
-  }
-  
+  "domain": "owncastparser",
+  "name": "Owncast Parser",
+  "version": "0.2.0",
+  "config_flow": true,
+  "documentation": "https://github.com/glyphscribe/owncastparser#readme",
+  "issue_tracker": "https://github.com/glyphscribe/owncastparser/issues",
+  "codeowners": [
+    "@glyphscribe"
+  ],
+  "iot_class": "cloud_polling",
+  "requirements": []
+}

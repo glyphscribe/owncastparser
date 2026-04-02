@@ -9,27 +9,24 @@ Custom component for [Home Assistant](https://www.home-assistant.io) which retur
 3. Find **Owncast Parser** in HACS, **Install**.
 4. **Restart** Home Assistant.
 
-## Minimal Configuration (YAML)
+## Configuration (UI)
+
+Go to **Settings → Devices & Services → Add Integration**, search for **Owncast Parser**, and enter your server details.
+
+## Configuration (YAML — deprecated)
+
+YAML configuration still works but will auto-import as a config entry on startup. A deprecation warning will be logged. You may remove the YAML block after the first import.
 
 ```yaml
 sensor:
   - platform: owncastparser
     name: "An Owncast Server"
     url: "https://an-owncast-server.net"
+    timeout: 10
+    verify_ssl: true
 ```
 
-## Complete Configuration (YAML)
-
-```yaml
-sensor:
-  - platform: owncastparser
-    name: "Your Owncast Site"
-    url: "https://your-owncast-site.online/"
-    timeout: 10 # fetch limit in seconds
-    verify_ssl: true # verify certificates
-    scan_interval: 
-      minutes: 5 # how often to poll status
-```
+**Note:** `scan_interval` is no longer configurable per-sensor. The default polling interval is 1 minute.
 
 ## Thanks
 A not-insignificant amount of the hass custom_component interface logic was cribbed from [Feedparser](https://github.com/custom-components/feedparser). Please show the project some love if you can.
